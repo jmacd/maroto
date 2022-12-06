@@ -5,10 +5,10 @@ import (
 	"os"
 	"time"
 
-	"github.com/johnfercher/maroto/pkg/color"
-	"github.com/johnfercher/maroto/pkg/consts"
-	"github.com/johnfercher/maroto/pkg/pdf"
-	"github.com/johnfercher/maroto/pkg/props"
+	"github.com/jmacd/maroto/pkg/color"
+	"github.com/jmacd/maroto/pkg/consts"
+	"github.com/jmacd/maroto/pkg/pdf"
+	"github.com/jmacd/maroto/pkg/props"
 )
 
 func main() {
