@@ -31,6 +31,8 @@ func NewText(pdf fpdf.Fpdf, math Math, font Font) *text {
 
 // Add a text inside a cell.
 func (s *text) Add(text string, cell Cell, textProp props.Text) {
+	//fmt.Println("CASE A", cell.Width)
+
 	s.font.SetFont(textProp.Family, textProp.Style, textProp.Size)
 
 	originalColor := s.font.GetColor()
@@ -50,9 +52,11 @@ func (s *text) Add(text string, cell Cell, textProp props.Text) {
 
 	// If should add one line
 	if stringWidth < cell.Width || textProp.Extrapolate || len(words) == 1 {
+		//fmt.Println("CASE CCCC", stringWidth, cell.Width, textProp.Extrapolate, len(words), "UUU", unicodeText)
 		s.addLine(textProp, cell.X, cell.Width, cell.Y, stringWidth, unicodeText)
 	} else {
 		lines := s.getLines(words, cell.Width)
+		//fmt.Println("LINES ARE", lines)
 
 		for index, line := range lines {
 			lineWidth := s.pdf.GetStringWidth(line)
@@ -84,6 +88,7 @@ func (s *text) GetLinesQuantity(text string, textProp props.Text, colWidth float
 	}
 
 	lines := s.getLines(words, colWidth)
+
 	return len(lines)
 }
 
@@ -95,6 +100,7 @@ func (s *text) getLines(words []string, colWidth float64) []string {
 	lines = append(lines, "")
 
 	for _, word := range words {
+		//fmt.Println("WORD ARE", word, "CW", colWidth, "SP", s.pdf.GetStringWidth(word+" "), "CUR", currentlySize)
 		if s.pdf.GetStringWidth(word+" ")+currentlySize < colWidth {
 			lines[actualLine] = lines[actualLine] + word + " "
 			currentlySize += s.pdf.GetStringWidth(word + " ")
@@ -110,7 +116,11 @@ func (s *text) getLines(words []string, colWidth float64) []string {
 }
 
 func (s *text) addLine(textProp props.Text, xColOffset, colWidth, yColOffset, textWidth float64, text string) {
+	//fmt.Println("CASE B")
+
 	left, top, _, _ := s.pdf.GetMargins()
+
+	//fmt.Println("addLine", text)
 
 	if textProp.Align == consts.Left {
 		s.pdf.Text(xColOffset+left, yColOffset+top, text)
