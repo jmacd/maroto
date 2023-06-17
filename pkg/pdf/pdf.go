@@ -3,12 +3,12 @@ package pdf
 import (
 	"bytes"
 
-	"github.com/johnfercher/maroto/internal/fpdf"
-	"github.com/johnfercher/maroto/pkg/color"
+	"github.com/jmacd/maroto/internal/fpdf"
+	"github.com/jmacd/maroto/pkg/color"
 
-	"github.com/johnfercher/maroto/internal"
-	"github.com/johnfercher/maroto/pkg/consts"
-	"github.com/johnfercher/maroto/pkg/props"
+	"github.com/jmacd/maroto/internal"
+	"github.com/jmacd/maroto/pkg/consts"
+	"github.com/jmacd/maroto/pkg/props"
 	"github.com/jung-kurt/gofpdf"
 )
 
@@ -33,6 +33,7 @@ type Maroto interface {
 	// Outside Col/Row Components
 	TableList(header []string, contents [][]string, prop ...props.TableList)
 	Line(spaceHeight float64, prop ...props.Line)
+	GetLinesHeight(text string, props props.Text, colWidth float64) float64
 
 	// Inside Col/Row Components
 	Text(text string, prop ...props.Text)
@@ -139,6 +140,9 @@ func NewMarotoCustomSize(orientation consts.Orientation, pageSize consts.PageSiz
 	tableList := internal.NewTableList(text, font)
 
 	lineHelper := internal.NewLine(fpdf)
+
+	//w, h := fpdf.GetPageSize()
+	//fmt.Println("PDF", w, h)
 
 	maroto := &PdfMaroto{
 		Pdf:               fpdf,
@@ -344,6 +348,17 @@ func (s *PdfMaroto) Line(spaceHeight float64, prop ...props.Line) {
 	})
 }
 
+func (s *PdfMaroto) GetLinesHeight(text string, props props.Text, colWidth float64) float64 {
+	count := s.TextHelper.GetLinesQuantity(text, props, colWidth)
+	s.Font.SetFont(props.Family, props.Style, props.Size)
+
+	_, _, fontSize := s.Font.GetFont()
+	textHeight := fontSize / s.Font.GetScaleFactor()
+
+	//fmt.Println("TEXT", text, "COUNT", count, "FS", fontSize, "TH", textHeight)
+	return float64(count) * (textHeight + props.VerticalPadding)
+}
+
 // Row define a row and enable add columns inside the row.
 // Maroto do not support recursive rows or rows inside columns.
 func (s *PdfMaroto) Row(height float64, closure func()) {
@@ -454,6 +469,7 @@ func (s *PdfMaroto) Text(text string, prop ...props.Text) {
 	if cellWidth < 0 {
 		cellWidth = 0
 	}
+	//fmt.Println("HERE", cellWidth, textProp.Left, textProp.Right)
 
 	cell := internal.Cell{
 		X:      s.xColOffset + textProp.Left,
